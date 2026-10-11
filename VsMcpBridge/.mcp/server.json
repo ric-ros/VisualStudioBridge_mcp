@@ -1,0 +1,23 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+  "description": "Drive a running Visual Studio on Windows from AI agents: build, Error List, solutions, documents, debugger state.",
+  "name": "io.github.ric-ros/vsmcpbridge",
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registryType": "nuget",
+      "registryBaseUrl": "https://api.nuget.org",
+      "identifier": "VsMcpBridge",
+      "version": "1.0.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [],
+      "environmentVariables": []
+    }
+  ],
+  "repository": {
+    "url": "https://github.com/ric-ros/VisualStudioBridge_mcp",
+    "source": "github"
+  }
+}

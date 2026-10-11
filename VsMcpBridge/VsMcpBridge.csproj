@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<!-- Windows-only by design (COM/DTE, STA apartments, Win32 message pumping); declared with
+		     [assembly: SupportedOSPlatform("windows")] in Program.cs, because PackAsTool rejects
+		     platform-specific TFMs such as net10.0-windows (NETSDK1146). -->
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<RootNamespace>VsMcpBridge</RootNamespace>
+		<AssemblyName>VsMcpBridge</AssemblyName>
+	</PropertyGroup>
+
+	<!-- Shipped as a .NET tool / MCP server package, launched by MCP clients through dnx. -->
+	<PropertyGroup>
+		<PackAsTool>true</PackAsTool>
+		<ToolCommandName>vsmcpbridge</ToolCommandName>
+		<PackageType>McpServer</PackageType>
+		<PackageId>VsMcpBridge</PackageId>
+		<Version>1.0.0</Version>
+		<Authors>ric-ros</Authors>
+		<Description>MCP server that lets AI coding agents drive a running Visual Studio on Windows: build, read the real Error List, inspect solutions and open documents, through DTE COM automation. No VSIX required.</Description>
+		<PackageTags>mcp;modelcontextprotocol;mcp-server;visual-studio;dte;ai;agents;copilot;claude</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageProjectUrl>https://github.com/ric-ros/VisualStudioBridge_mcp</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/ric-ros/VisualStudioBridge_mcp</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\README.md" Pack="true" PackagePath="\" />
+		<None Include=".mcp\server.json" Pack="true" PackagePath="\.mcp\" />
+	</ItemGroup>
+
+	<!-- Versions are pinned exactly (no floating ranges) so that restore resolves
+	     purely from the local NuGet global cache. Floating versions such as "2.*"
+	     force NuGet to query the remote feed, which breaks restore on hosts that
+	     are offline or behind a proxy. Bump these deliberately. -->
+	<ItemGroup>
+		<PackageReference Include="ModelContextProtocol" Version="2.2.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.19" />
+		<PackageReference Include="Microsoft.VisualStudio.Interop" Version="17.14.40260" />
+	</ItemGroup>
+</Project>

@@ -264,6 +264,8 @@ Package versions are pinned exactly, with no floating ranges, so restore works o
 
 **Pack.** `dotnet pack VsMcpBridge -c Release` produces the NuGet tool package, with package types `DotnetTool` and `McpServer`.
 
+**Release.** Bump the version in `VsMcpBridge.csproj` and both versions in `VsMcpBridge/.mcp/server.json`, then publish a GitHub release tagged `v<version>`. `.github/workflows/publish.yml` checks that the tag matches, packs, and pushes to nuget.org through Trusted Publishing, so no API key is stored.
+
 ---
 
 ## License

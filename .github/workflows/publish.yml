@@ -1,0 +1,46 @@
+# Publishes VsMcpBridge to nuget.org when a GitHub release is published.
+# Uses nuget.org Trusted Publishing: no API key is stored in this repository.
+# https://learn.microsoft.com/nuget/nuget-org/trusted-publishing
+name: Publish to NuGet
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      id-token: write # lets NuGet/login exchange the GitHub OIDC token for a temporary API key
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      # The tag, the package version and the MCP registry metadata must agree.
+      - name: Check release tag matches versions
+        shell: pwsh
+        run: |
+          $tag = '${{ github.event.release.tag_name }}' -replace '^v', ''
+          $project = ([xml](Get-Content VsMcpBridge/VsMcpBridge.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          $server = Get-Content VsMcpBridge/.mcp/server.json -Raw | ConvertFrom-Json
+          $versions = @($project, $server.version) + @($server.packages.version)
+          if ($versions | Where-Object { $_ -ne $tag }) {
+            throw "Release tag '$tag' does not match csproj '$project' / server.json '$($versions[1..($versions.Count - 1)] -join "', '")'."
+          }
+
+      - name: Pack
+        run: dotnet pack VsMcpBridge -c Release -o artifacts -p:ContinuousIntegrationBuild=true
+
+      - name: NuGet login (OIDC to temporary API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push
+        run: dotnet nuget push artifacts/*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
